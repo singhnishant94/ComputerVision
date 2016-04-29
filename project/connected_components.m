@@ -1,4 +1,9 @@
-function [ img_dir ] = connected_components( path )    
+function [ img_dir ] = connected_components( path, color)
+
+    if ((color < 0) || (color > 1))
+        disp(['Usage: connected_components(<path to directory>, <0 or 1, 0 for grayscale, 1 for color>)']);
+        return;
+    end
     img_dir = dir(path);
     num_imgs = length(img_dir);
     disp(num_imgs);
@@ -75,7 +80,7 @@ function [ img_dir ] = connected_components( path )
            end
         end
         disp(size(top_k_matches_con))
-        stitch_images(I_connected, top_k_matches_con, ['output', num2str(i), '.jpg'])
+        stitch_images(I_connected, top_k_matches_con, ['output', num2str(i), '.jpg'], color)
     end
     disp(connected);
     
