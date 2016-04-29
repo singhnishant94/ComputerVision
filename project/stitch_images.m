@@ -7,7 +7,15 @@ function [ aaa ] = stitch_images( I, top_k_matches, output, color )
     
     
     num_imgs = size(I,2);
-    [height, width] = size(rgb2gray(I{1}));
+    colored = 0;
+    if (size(I{1},3)>1)
+        colored = 1;
+    end
+    if colored == 1
+        [height, width] = size(rgb2gray(I{1}));
+    else 
+        [height, width] = size(I{1});
+    end
     
     %{
     dist_mask = zeros([height, width]);
@@ -19,9 +27,9 @@ function [ aaa ] = stitch_images( I, top_k_matches, output, color )
     homo_accum = cell(1,num_imgs);
     centers = cell(1, num_imgs);
     
-    w_mul = 2;
+    w_mul = 6;
     
-    h_mul = w_mul;
+    h_mul = 2;
     
     for i=1:num_imgs
         homo_accum{i} = eye(3);
@@ -77,7 +85,7 @@ function [ aaa ] = stitch_images( I, top_k_matches, output, color )
         
         im1 = I{indx};
         im2 = I{indy};
-        if (color == 0)
+        if (color == 0 && colored == 1)
             im1 = rgb2gray(I{indx});
             im2 = rgb2gray(I{indy});
         end
@@ -271,8 +279,8 @@ function [ aaa ] = stitch_images( I, top_k_matches, output, color )
         disp(on_canvas);
     end
     
-    imwrite(canvas, 'output.jpg');
-    figure, imshow(canvas), title('Mosaic');
+    imwrite(canvas, output);
+    %figure, imshow(canvas), title('Mosaic');
     
     %{
     disp(I);

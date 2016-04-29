@@ -23,15 +23,29 @@ function [ img_dir ] = connected_components( path, color)
     
     num_imgs = num_imgs-2;
     top_k_matches = cell(num_imgs, num_imgs);
-    [height, width] = size(rgb2gray(I{1}));
-    thresh = (height*width*50)/(240*320);
-    connected = zeros(1, num_imgs);
+    colored = 0;
+    if (size(I{1},3)>1)
+        colored = 1;
+    end
+    if colored == 1        
+        [height, width] = size(rgb2gray(I{1}));
+    else
+         [height, width] = size(I{1});
+    end
+         
+    thresh = (height*width*30)/(240*320);
+    edge = zeros(num_imgs, num_imgs);
     group_no = 1;
     for i=1:num_imgs
         for j=i+1:num_imgs
             %if(i==j) continue; end;
-            im1 = rgb2gray(I{i});
-            im2 = rgb2gray(I{j});
+            if colored == 1
+                im1 = rgb2gray(I{i});
+                im2 = rgb2gray(I{j});
+            else
+                im1 = I{i};
+                im2 = I{j};
+            end
             [matches, num] = match(im1, im2);
             
             
@@ -42,19 +56,37 @@ function [ img_dir ] = connected_components( path, color)
                 matches(:,[1,3])=matches(:,[3,1]);
                 matches(:,[2,4])=matches(:,[4,2]);
                 top_k_matches{j,i} = matches;
-                if connected(i) ~=0
-                    connected(j) = connected(i);
-                elseif connected(j) ~= 0
-                        connected(i) = connected(j);
-                else 
-                    connected(i) = group_no;
-                    connected(j) = group_no;
-                    group_no = group_no + 1;
-                end
+                edge(i, j) = 1;
+                edge(j, i) = 1;               
             end;
         end;
     end;
-    disp(connected)
+    
+    done = zeros(1, num_imgs);
+    group_no = 1;
+    connected = zeros(1, num_imgs);
+   
+    for i=1:num_imgs   
+        if done(i) == 0
+            queue = [i];
+            connected(i) = group_no;
+            index = 1;
+            done(i) = 1;
+            while index<=size(queue, 2)
+                disp(queue)
+                for j=1:num_imgs
+                    if done(j) == 0 && edge(queue(index), j)                     
+                        done(j) = 1;
+                        connected(j) = group_no;
+                        queue = horzcat(queue, [j]);
+                    end
+                end
+                index = index + 1;
+            end
+            group_no = group_no + 1;            
+        end
+    end
+    
     for i=1:(group_no-1)
         I_connected = {};
         counter = 1;
