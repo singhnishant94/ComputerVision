@@ -28,9 +28,14 @@ function [ img_dir ] = stitch_images( path )
             im1 = rgb2gray(I{i});
             im2 = rgb2gray(I{j});
             [matches, num] = match(im1, im2);
+            
+            
             disp(['Matches for ', num2str(i),' ', num2str(j),' : ',num2str(length(matches))]);
-            if(num > 200)
+            
+            if(num > 50)
                 top_k_matches{i,j} = matches;
+                matches(:,[1,3])=matches(:,[3,1]);
+                matches(:,[2,4])=matches(:,[4,2]);
                 top_k_matches{j,i} = matches;
             end;
         end;
@@ -56,7 +61,7 @@ function [ img_dir ] = stitch_images( path )
     end
     %}
     [height, width] = size(rgb2gray(I{1}));
-    canvas = zeros(4*height, 4*width);
+    canvas = zeros(2*height, 2*width);
     disp(size(canvas));
     on_canvas = [];
     while (length(on_canvas) < num_imgs)
@@ -102,6 +107,8 @@ function [ img_dir ] = stitch_images( path )
         disp('Computing homography')
         [H, inliers] = ransacfithomography(matches1, matches2, 0.005);
         H = H/H(3,3);
+        disp(['Accumulated H for ', num2str(indy)]);
+        disp(homo_accum{indy})
         H = homo_accum{indy}*H;
         H = H/H(3,3)
         
