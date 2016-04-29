@@ -1,46 +1,8 @@
-function [ img_dir ] = stitch_images( path )
+function [ img_dir ] = stitch_images( I, top_k_matches, output )
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
-    img_dir = dir(path);
-    num_imgs = length(img_dir);
-    disp(num_imgs);
-    I = cell(1,num_imgs-2);
-    ind = 1;
-    for i=1:num_imgs
-        if(img_dir(i).name(1) == '.')
-            continue;
-        end
-        disp(img_dir(i).name);
-        I{ind} = imread(fullfile(path, img_dir(i).name));
-        ind = ind +1;
-    end;
-    
-        
-    
-    k = 6;
-    
-    num_imgs = num_imgs-2;
-    top_k_matches = cell(num_imgs, num_imgs);
-    
-    for i=1:num_imgs
-        for j=i+1:num_imgs
-            %if(i==j) continue; end;
-            im1 = rgb2gray(I{i});
-            im2 = rgb2gray(I{j});
-            [matches, num] = match(im1, im2);
-            
-            
-            disp(['Matches for ', num2str(i),' ', num2str(j),' : ',num2str(length(matches))]);
-            
-            if(num > 50)
-                top_k_matches{i,j} = matches;
-                matches(:,[1,3])=matches(:,[3,1]);
-                matches(:,[2,4])=matches(:,[4,2]);
-                top_k_matches{j,i} = matches;
-            end;
-        end;
-    end;
-    
+
+    num_imgs = size(I, 2);
     %Homography accumulator
     homo_accum = cell(1,num_imgs);
     
@@ -157,8 +119,8 @@ function [ img_dir ] = stitch_images( path )
         disp(on_canvas);
     end
         
-    imwrite(canvas, 'output.jpg');
-    figure, imshow(canvas), title('Mosaic');
+    imwrite(canvas, output);
+    %figure, imshow(canvas), title('Mosaic');
     
     %{
     disp(I);
