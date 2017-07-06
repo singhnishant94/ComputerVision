@@ -1,10 +1,10 @@
 # ComputerVision
 Automatic Panoramic Image Stitching
-##Contributors:
+## Contributors:
 Nishant Kumar Singh 120050043
 Deependra Patel 120050032
 
-##HOW TO USE
+## HOW TO USE
 Put all images in a folder(can try data/)
 Run 
 'connected_components(dir_path, color)' in matlab
